@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MATH 24 — คณิตศาสตร์แห่งการแข่งขัน</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Floating Math Symbols Background -->
+  <div class="math-bg" id="mathBg"></div>
+
+  <!-- ===== AUTH SCREEN ===== -->
+  <div id="authScreen" class="screen active">
+    <div class="auth-container">
+      <div class="logo-area">
+        <div class="logo-icon">∑</div>
+        <h1 class="logo-title">MATH<span>24</span></h1>
+        <p class="logo-sub">เกมคณิตศาสตร์แห่งการแข่งขัน</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+        <button class="tab-btn" onclick="switchTab('register')">สมัครสมาชิก</button>
+      </div>
+      <!-- Login Form -->
+      <div id="loginForm" class="auth-form active">
+        <div class="input-group">
+          <span class="input-icon">◈</span>
+          <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้" autocomplete="off" />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPass" placeholder="รหัสผ่าน" />
+        </div>
+        <div id="loginError" class="error-msg"></div>
+        <button class="btn-primary" onclick="login()">เข้าสู่ระบบ</button>
+      </div>
+      <!-- Register Form -->
+      <div id="registerForm" class="auth-form">
+        <div class="input-group">
+          <span class="input-icon">◈</span>
+          <input type="text" id="regUser" placeholder="ชื่อผู้ใช้ (ไม่ซ้ำกัน)" maxlength="20" autocomplete="off" />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regPass" placeholder="รหัสผ่าน (อย่างน้อย 4 ตัว)" />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regPass2" placeholder="ยืนยันรหัสผ่าน" />
+        </div>
+        <div id="regError" class="error-msg"></div>
+        <button class="btn-primary" onclick="register()">สมัครสมาชิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN APP ===== -->
+  <div id="appScreen" class="screen">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">∑ MATH<span>24</span></span>
+      </div>
+      <div class="topbar-center">
+        <nav class="nav-tabs">
+          <button class="nav-btn active" onclick="showPage('gamePage')" data-page="gamePage">🎮 เล่นเกม</button>
+          <button class="nav-btn" onclick="showPage('leaderPage')" data-page="leaderPage">🏆 อันดับ</button>
+          <button class="nav-btn" onclick="showPage('profilePage')" data-page="profilePage">👤 โปรไฟล์</button>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <div class="user-badge" id="userBadge"></div>
+        <button class="btn-logout" onclick="logout()">ออก</button>
+      </div>
+    </header>
+
+    <!-- Online Top 5 Panel -->
+    <div class="online-panel" id="onlinePanel">
+      <div class="online-title">🔴 LIVE TOP 5</div>
+      <div id="onlineList"></div>
+      <div class="week-timer" id="weekTimer"></div>
+    </div>
+
+    <!-- Pages -->
+    <main class="main-content">
+      <!-- GAME PAGE -->
+      <div id="gamePage" class="page active">
+        <div class="game-wrapper">
+          <div class="game-header">
+            <h2>🧮 เกม 24</h2>
+            <p class="game-desc">ใช้ตัวเลข 4 ตัวและการดำเนินการทางคณิตศาสตร์เพื่อให้ได้ผลลัพธ์ = <strong>24</strong></p>
+          </div>
+          <div class="score-info-bar">
+            <div class="score-chip">⏱ <span id="timerDisplay">00:00</span></div>
+            <div class="score-chip">⭐ คะแนนที่จะได้: <span id="potentialScore" class="score-glow">3</span></div>
+            <div class="score-chip">🏅 สัปดาห์: <span id="weekScore">0</span></div>
+            <div class="score-chip">💎 สะสม: <span id="totalScore">0</span></div>
+          </div>
+          <div class="cards-area" id="cardsArea"></div>
+          <div class="expression-area">
+            <div class="expr-label-row">
+              <span class="expr-label">ขั้นตอนการคำนวณ:</span>
+              <span id="wrongStreakIndicator" class="wrong-streak"></span>
+            </div>
+            <div class="expr-builder">
+              <div class="expr-display" id="exprDisplay"></div>
+              <button class="btn-clear-expr" onclick="clearExpr()">✕ ล้าง</button>
+            </div>
+            <div class="calc-guide">① เลือกตัวเลข → ② เลือกเครื่องหมาย → ③ เลือกตัวเลขถัดไป → ทำซ้ำจนครบ 4 ตัว</div>
+            <div class="number-buttons" id="numberButtons"></div>
+            <div class="op-buttons">
+              <button class="op-btn" onclick="addOp('+')">+</button>
+              <button class="op-btn" onclick="addOp('-')">−</button>
+              <button class="op-btn" onclick="addOp('*')">×</button>
+              <button class="op-btn" onclick="addOp('/')">÷</button>
+            </div>
+            <div class="action-buttons">
+              <button class="btn-submit" onclick="submitAnswer()">✓ ส่งคำตอบ</button>
+              <button class="btn-skip" onclick="skipPuzzle()">→ ข้าม</button>
+            </div>
+          </div>
+          <div id="resultPopup" class="result-popup hidden">
+            <div class="result-inner">
+              <div id="resultIcon" class="result-icon"></div>
+              <div id="resultMsg" class="result-msg"></div>
+              <div id="resultScore" class="result-score"></div>
+              <button class="btn-next" onclick="nextPuzzle()">ถัดไป ▶</button>
+            </div>
+          </div>
+          <div class="game-stats">
+            <div class="stat-item">✅ ถูก: <span id="statCorrect">0</span></div>
+            <div class="stat-item">❌ ผิด: <span id="statWrong">0</span></div>
+            <div class="stat-item">⏭ ข้าม: <span id="statSkip">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD PAGE -->
+      <div id="leaderPage" class="page">
+        <div class="leader-wrapper">
+          <h2>🏆 กระดานอันดับ</h2>
+          <p class="reset-info">⟳ รีเซตทุกวันจันทร์ 00:00 น.</p>
+          <div class="leader-tabs">
+            <button class="ltab active" onclick="switchLeaderTab('weekly')">สัปดาห์นี้</button>
+            <button class="ltab" onclick="switchLeaderTab('alltime')">คะแนนสะสม</button>
+          </div>
+          <div id="leaderList"></div>
+        </div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div id="profilePage" class="page">
+        <div class="profile-wrapper" id="profileContent"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== ADMIN SCREEN ===== -->
+  <div id="adminScreen" class="screen">
+    <div class="admin-container">
+      <header class="admin-header">
+        <span class="topbar-logo">⚙ ADMIN PANEL</span>
+        <div>
+          <span id="adminUserLabel" style="color:#a0f0a0;margin-right:12px;font-family:'Sarabun',sans-serif;"></span>
+          <button class="btn-logout" onclick="adminLogout()">ออก</button>
+        </div>
+      </header>
+      <div class="admin-nav">
+        <button class="atab active" onclick="switchAdminTab('users')">👥 ผู้ใช้ทั้งหมด</button>
+        <button class="atab" onclick="switchAdminTab('scores')">🏆 คะแนน</button>
+        <button class="atab" onclick="switchAdminTab('settings')">⚙ ตั้งค่า</button>
+      </div>
+      <div id="adminContent" class="admin-content"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
